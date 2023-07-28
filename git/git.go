@@ -78,6 +78,7 @@ func (g *gitOs) FindGitRoot(_ context.Context, loc string) (string, error) {
 		if newLoc == loc {
 			return "", nil
 		}
+		loc = newLoc
 	}
 	return "", fmt.Errorf("too many directories traversed")
 }

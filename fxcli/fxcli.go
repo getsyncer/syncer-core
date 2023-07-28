@@ -6,24 +6,27 @@ import (
 	"go.uber.org/fx"
 )
 
+// Module allows invoking CLI style applications from an fx.App
 var Module = fx.Module("syncer",
 	fx.Provide(
-		NewFxCLI,
+		newFxCLI,
 	),
-	fx.Invoke(func(_ *FxCLI) {}),
+	fx.Invoke(func(_ *fxCLI) {}),
 )
 
+// Main is the interface that must be implemented by the main CLI application.
 type Main interface {
+	// Run is the equivalent of main() in a CLI application.
 	Run()
 }
 
-type FxCLI struct {
+type fxCLI struct {
 	toRun Main
 	sh    fx.Shutdowner
 }
 
-func NewFxCLI(toRun Main, lc fx.Lifecycle, sh fx.Shutdowner) *FxCLI {
-	ret := &FxCLI{
+func newFxCLI(toRun Main, lc fx.Lifecycle, sh fx.Shutdowner) *fxCLI {
+	ret := &fxCLI{
 		sh:    sh,
 		toRun: toRun,
 	}
@@ -36,16 +39,16 @@ func NewFxCLI(toRun Main, lc fx.Lifecycle, sh fx.Shutdowner) *FxCLI {
 	return ret
 }
 
-func (s *FxCLI) start(_ context.Context) error {
+func (s *fxCLI) start(_ context.Context) error {
 	go s.run()
 	return nil
 }
 
-func (s *FxCLI) stop(_ context.Context) error {
+func (s *fxCLI) stop(_ context.Context) error {
 	return nil
 }
 
-func (s *FxCLI) run() {
+func (s *fxCLI) run() {
 	defer func() {
 		if err := s.sh.Shutdown(); err != nil {
 			panic(err)

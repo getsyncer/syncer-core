@@ -2,28 +2,21 @@ package files
 
 import (
 	"fmt"
-	"path/filepath"
 	"sort"
 
 	"go.uber.org/zap/zapcore"
 )
 
-type Path string
-
-func (f Path) Clean() Path {
-	return Path(filepath.Clean(string(f)))
-}
-
-func (f Path) String() string {
-	return string(f)
+type Validatable interface {
+	Validate() error
 }
 
 type System[T Validatable] struct {
 	files map[Path]T
 }
 
-type Validatable interface {
-	Validate() error
+func NewSystem[T Validatable](in map[Path]T) *System[T] {
+	return &System[T]{files: in}
 }
 
 func (f *System[T]) Add(path Path, state T) error {
@@ -144,6 +137,23 @@ func SystemMerge[T Validatable](systems ...*System[T]) (*System[T], error) {
 			if err := ret.Add(path, state); err != nil {
 				return nil, fmt.Errorf("failed to add %s: %w", path, err)
 			}
+		}
+	}
+	return &ret, nil
+}
+
+func ConvertToRemovals(s *System[*State]) (*System[*StateWithChangeReason], error) {
+	var ret System[*StateWithChangeReason]
+	for _, path := range s.Paths() {
+		if err := ret.Add(path, &StateWithChangeReason{
+			State: State{
+				FileExistence: FileExistenceAbsent,
+			},
+			ChangeReason: &ChangeReason{
+				Reason: "no-longer-tracked",
+			},
+		}); err != nil {
+			return nil, fmt.Errorf("failed to add %s: %w", path, err)
 		}
 	}
 	return &ret, nil

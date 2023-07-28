@@ -6,13 +6,18 @@ import (
 
 const FxTagLogDynamicFields = `group:"dynamic_fields"`
 
-var Module = fx.Module("logger",
+var ModuleCore = fx.Module("logger",
 	fx.Provide(
-		ZapLoggerFromConfig,
 		fx.Annotate(
 			New,
 			fx.ParamTags("", FxTagLogDynamicFields),
 		),
+	),
+)
+
+var ModuleProd = fx.Module("logger",
+	fx.Provide(
+		ZapLoggerFromConfig,
 		ZapLoggerConfigFromEnv,
 	),
 )

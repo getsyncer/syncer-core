@@ -37,6 +37,12 @@ func (f *State) Diff(_ context.Context, newState *State) (*Diff, error) {
 		OldFileState: f,
 		NewFileState: newState,
 	}
+	if f.FileExistence == FileExistenceUnset {
+		return nil, fmt.Errorf("file existence must be set on receiver")
+	}
+	if newState.FileExistence == FileExistenceUnset {
+		return nil, fmt.Errorf("file existence must be set on argument")
+	}
 	if f.FileExistence != newState.FileExistence {
 		// Deleting an existing file
 		if newState.FileExistence == FileExistenceAbsent {
@@ -97,25 +103,16 @@ func (e Existence) String() string {
 	}
 }
 
-func NewStateFromPath(path Path) (*State, error) {
-	pathStr := path.String()
-	var ret State
-	var fs os.FileInfo
-	var err error
-	if fs, err = os.Stat(pathStr); err != nil {
-		if os.IsNotExist(err) {
-			return &State{
-				FileExistence: FileExistenceAbsent,
-			}, nil
+func SimpleState(files map[string]string) *System[*State] {
+	var ret System[*State]
+	for path, contents := range files {
+		if err := ret.Add(Path(path), &State{
+			Mode:          0644,
+			Contents:      []byte(contents),
+			FileExistence: FileExistencePresent,
+		}); err != nil {
+			panic(err)
 		}
-		return nil, fmt.Errorf("failed to stat file %s: %w", path, err)
 	}
-	ret.FileExistence = FileExistencePresent
-	ret.Mode = fs.Mode()
-	currentContent, err := os.ReadFile(pathStr)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read file for new state %s: %w", pathStr, err)
-	}
-	ret.Contents = currentContent
-	return &ret, nil
+	return &ret
 }
