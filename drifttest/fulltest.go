@@ -150,30 +150,6 @@ func (t *TestRun) MustExitCode(tes *testing.T, code int) {
 	require.Equal(tes, code, *ts.ExitCode)
 }
 
-func (t *TestRun) FileContentMatches(tes *testing.T, filename string, contents string) {
-	f, err := os.ReadFile(filepath.Join(t.tempDir, filename))
-	require.NoError(tes, err)
-	require.Equal(tes, contents, string(f))
-}
-
-func (t *TestRun) OnlyChanges(tes *testing.T, paths ...string) {
-	wd := t.tempDir
-	g, err := git.PlainOpen(wd)
-	require.NoError(tes, err)
-	wt, err := g.Worktree()
-	require.NoError(tes, err)
-
-	// Only the files in path are changed
-	status, err := wt.Status()
-	require.NoError(tes, err)
-	require.Equal(tes, len(paths), len(status))
-	for _, path := range paths {
-		x := status.File(path)
-		require.NotNil(tes, x)
-		require.NotEqual(tes, git.Unmodified, x.Worktree)
-	}
-}
-
 func (t *TestRun) MustPrint(tes *testing.T, str string) {
 	ts := t.TestRunForConfig.TestStub.(*osstub.TestStub)
 	allPrints := strings.Join(ts.Prints, "\n")
