@@ -117,7 +117,7 @@ func (t *TestRun) SetupFiles() {
 	}
 	if t.Config != "" {
 		require.NoError(t.T, os.MkdirAll(".syncer", 0755))
-		require.NoError(t.T, os.WriteFile(".syncer/config.yaml", []byte(t.Config), 0644))
+		require.NoError(t.T, os.WriteFile(".syncer/config.yaml", []byte(t.Config), 0600))
 		// now add to git
 		_, err := wt.Add(".syncer/config.yaml")
 		require.NoError(t.T, err)
@@ -129,6 +129,7 @@ func (t *TestRun) SetupFiles() {
 			Email: "noreply@example.com",
 		},
 	})
+	require.NoError(t.T, err)
 }
 
 func (t *TestRun) Run() {

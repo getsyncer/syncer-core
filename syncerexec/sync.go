@@ -1,9 +1,6 @@
 package syncerexec
 
 import (
-
-	//"github.com/getsyncer/syncer-core/files/osfiles"
-
 	"github.com/getsyncer/syncer-core/config/configloader"
 	"github.com/getsyncer/syncer-core/drift"
 	"github.com/getsyncer/syncer-core/files/diffexecutor/osdiffexecutor"
@@ -11,13 +8,12 @@ import (
 	"github.com/getsyncer/syncer-core/files/stateloader/osstateloader"
 	"github.com/getsyncer/syncer-core/fxcli"
 	"github.com/getsyncer/syncer-core/fxregistry"
+	"github.com/getsyncer/syncer-core/git"
+	"github.com/getsyncer/syncer-core/log"
 	"github.com/getsyncer/syncer-core/osstub"
 	"github.com/getsyncer/syncer-core/syncer/applier"
 	"github.com/getsyncer/syncer-core/syncer/childrenregistry"
 	"github.com/getsyncer/syncer-core/syncer/planner"
-
-	"github.com/getsyncer/syncer-core/git"
-	"github.com/getsyncer/syncer-core/log"
 	"go.uber.org/fx"
 )
 

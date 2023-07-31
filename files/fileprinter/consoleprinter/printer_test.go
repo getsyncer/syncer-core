@@ -15,12 +15,12 @@ func TestConsolePrinterImpl_PrettyPrintDiffs(t *testing.T) {
 	var into bytes.Buffer
 	var toPrint files.System[*files.DiffWithChangeReason]
 	require.NoError(t, x.PrettyPrintDiffs(&into, &toPrint))
-	toPrint.Add("foo", &files.DiffWithChangeReason{
+	require.NoError(t, toPrint.Add("foo", &files.DiffWithChangeReason{
 		Diff: filestesthelp.NewDiffDeleteFile(nil),
 		ChangeReason: &files.ChangeReason{
 			Reason: "foo",
 		},
-	})
+	}))
 	require.NoError(t, x.PrettyPrintDiffs(&into, &toPrint))
 	require.Contains(t, into.String(), "foo")
 }

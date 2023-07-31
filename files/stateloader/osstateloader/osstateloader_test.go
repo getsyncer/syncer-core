@@ -17,7 +17,7 @@ func Test_osLoader_LoadState(t *testing.T) {
 	ctx := context.Background()
 	filePath1 := filepath.Join(td, "file1")
 	filePath2 := filepath.Join(td, "file2")
-	require.NoError(t, os.WriteFile(filePath1, []byte("hello"), 0644))
+	require.NoError(t, os.WriteFile(filePath1, []byte("hello"), 0600))
 	s1, err := x.LoadState(ctx, files.Path(filePath1))
 	require.NoError(t, err)
 	require.Equal(t, []byte("hello"), s1.Contents)

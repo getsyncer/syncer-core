@@ -27,10 +27,6 @@ func NewTestStateloaderFromFiles(filesToMake map[string]string) *TestStateloader
 	}
 }
 
-func newLoader() *TestStateloader {
-	return &TestStateloader{}
-}
-
 func (l *TestStateloader) LoadState(_ context.Context, path files.Path) (*files.State, error) {
 	for _, errorPath := range l.ErrorPaths {
 		if path == errorPath {

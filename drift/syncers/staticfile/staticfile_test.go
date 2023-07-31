@@ -3,9 +3,8 @@ package staticfile
 import (
 	"testing"
 
-	"github.com/getsyncer/syncer-core/files"
-
 	"github.com/getsyncer/syncer-core/drifttest"
+	"github.com/getsyncer/syncer-core/files"
 )
 
 func TestStaticFileDrift(t *testing.T) {

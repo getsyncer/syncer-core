@@ -1,6 +1,7 @@
 package files_test
 
 import (
+	"context"
 	"os"
 	"testing"
 
@@ -12,13 +13,13 @@ import (
 func TestState_Diff(t *testing.T) {
 	expectErrorDiff := func(t *testing.T, oldState, newState *files.State) func(t *testing.T) {
 		return func(t *testing.T) {
-			_, err := oldState.Diff(nil, newState)
+			_, err := oldState.Diff(context.Background(), newState)
 			require.Error(t, err)
 		}
 	}
 	expectNoErrorDiff := func(t *testing.T, oldState, newState *files.State, expectedDiff *files.Diff) func(t *testing.T) {
 		return func(t *testing.T) {
-			diffRes, err := oldState.Diff(nil, newState)
+			diffRes, err := oldState.Diff(context.Background(), newState)
 			require.NoError(t, err)
 			require.Equal(t, expectedDiff, diffRes)
 		}
