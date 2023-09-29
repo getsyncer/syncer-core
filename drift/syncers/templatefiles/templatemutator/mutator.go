@@ -7,6 +7,7 @@ import (
 	"github.com/getsyncer/syncer-core/config"
 	"github.com/getsyncer/syncer-core/drift"
 	"github.com/getsyncer/syncer-core/files/stateloader"
+	"github.com/getsyncer/syncer-core/syncer"
 )
 
 type Mutator[T config.TemplateConfig] interface {
@@ -74,4 +75,17 @@ func (s *SetupMutator[T]) Setup(_ context.Context, runData *drift.RunData) error
 		return fmt.Errorf("unable to add mutator: %w", err)
 	}
 	return nil
+}
+
+func SimpleTemplateMutator[T config.TemplateConfig](changer func(T) T) MutatorFunc[T] {
+	return func(ctx context.Context, _ *drift.RunData, _ stateloader.StateLoader, cfg T) (T, error) {
+		return changer(cfg), nil
+	}
+}
+
+func SimpleTemplateSetupMutator[T config.TemplateConfig](name config.Name, changer func(T) T) syncer.SetupSyncer {
+	return &SetupMutator[T]{
+		Name:    name,
+		Mutator: SimpleTemplateMutator[T](changer),
+	}
 }
