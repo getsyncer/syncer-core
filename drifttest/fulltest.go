@@ -55,9 +55,13 @@ func testOptions(t *testing.T) fx.Option {
 }
 
 func WithRun(config string, fs *files.System[*files.State], postRunVerification func(t *testing.T, items *Items)) func(t *testing.T) {
+	return WithRunAndModule(config, fs, postRunVerification, fx.Module("empty"))
+}
+
+func WithRunAndModule(config string, fs *files.System[*files.State], postRunVerification func(t *testing.T, items *Items), module fx.Option) func(t *testing.T) {
 	return func(t *testing.T) {
 		trCon := TestRunConstructor(t, config, fs, postRunVerification)
-		app := fxtest.New(t, syncerexec.DefaultFxOptions(), testOptions(t), fx.Provide(fx.Annotate(trCon, fx.As(new(fxcli.Main)))))
+		app := fxtest.New(t, module, syncerexec.DefaultFxOptions(), testOptions(t), fx.Provide(fx.Annotate(trCon, fx.As(new(fxcli.Main)))))
 		app.RequireStart()
 		<-app.Done()
 	}

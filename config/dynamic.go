@@ -46,6 +46,36 @@ func (r Dynamic) MarshalYAML() (interface{}, error) {
 	return r.root, nil
 }
 
+func (r *Dynamic) SetValueIfEmpty(key string, value string) {
+	// if r.root is nil, set it to a new yaml.Node
+	if r.root == nil {
+		r.root = &yaml.Node{
+			Kind: yaml.MappingNode,
+		}
+	}
+
+	// if r.root[key] is empty, set it to value
+	for i := 0; i < len(r.root.Content); i += 2 {
+		if i+1 >= len(r.root.Content) {
+			return
+		}
+		if r.root.Content[i].Value == key {
+			if r.root.Content[i+1].Value == "" {
+				r.root.Content[i+1].Value = value
+			}
+			return
+		}
+	}
+	// if r.root[key] is not empty, append key and value to r.root
+	r.root.Content = append(r.root.Content, &yaml.Node{
+		Kind:  yaml.ScalarNode,
+		Value: key,
+	}, &yaml.Node{
+		Kind:  yaml.ScalarNode,
+		Value: value,
+	})
+}
+
 func (r *Dynamic) UnmarshalYAML(value *yaml.Node) error {
 	r.root = value
 	return nil
@@ -96,7 +126,7 @@ func recursiveMerge(from, into *yaml.Node) error {
 				if nodesEqual(from.Content[i], into.Content[j]) {
 					found = true
 					if err := recursiveMerge(from.Content[i+1], into.Content[j+1]); err != nil {
-						return errors.New("at key " + from.Content[i].Value + ": " + err.Error())
+						return fmt.Errorf("failed to merge mapping node at %s: %w", from.Content[i].Value, err)
 					}
 					break
 				}
@@ -111,6 +141,8 @@ func recursiveMerge(from, into *yaml.Node) error {
 		if err := recursiveMerge(from.Content[0], into.Content[0]); err != nil {
 			return fmt.Errorf("failed to merge document node: %w", err)
 		}
+	case yaml.ScalarNode:
+		// Skip scalars (It's like merging one value having "v3" into another value that already has "v4".  Just keep the "v4" value.)
 	default:
 		return fmt.Errorf("can only merge mapping and sequence nodes, not %d", from.Kind)
 	}

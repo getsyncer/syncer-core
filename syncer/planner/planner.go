@@ -6,31 +6,29 @@ import (
 	"os"
 	"sort"
 
-	"github.com/getsyncer/syncer-core/syncer"
-
-	"github.com/getsyncer/syncer-core/drift"
-
 	"github.com/cresta/zapctx"
 	"github.com/getsyncer/syncer-core/config"
 	"github.com/getsyncer/syncer-core/config/configloader"
+	"github.com/getsyncer/syncer-core/drift"
+	"github.com/getsyncer/syncer-core/files"
 	"github.com/getsyncer/syncer-core/files/stateloader"
 	"github.com/getsyncer/syncer-core/git"
+	"github.com/getsyncer/syncer-core/syncer"
 	"go.uber.org/zap"
-
-	"github.com/getsyncer/syncer-core/files"
 )
 
 type Planner interface {
 	Plan(ctx context.Context) (*files.System[*files.DiffWithChangeReason], error)
 }
 
-func NewPlanner(registry drift.Registry, configLoader configloader.ConfigLoader, log *zapctx.Logger, stateLoader stateloader.StateLoader, g git.Git) Planner {
+func NewPlanner(registry drift.Registry, configLoader configloader.ConfigLoader, log *zapctx.Logger, stateLoader stateloader.StateLoader, g git.Git, hook Hook) Planner {
 	return &plannerImpl{
 		registry:     registry,
 		configLoader: configLoader,
 		log:          log,
 		stateLoader:  stateLoader,
 		git:          g,
+		hook:         hook,
 	}
 }
 
@@ -40,6 +38,7 @@ type plannerImpl struct {
 	log          *zapctx.Logger
 	stateLoader  stateloader.StateLoader
 	git          git.Git
+	hook         Hook
 }
 
 var _ Planner = &plannerImpl{}
@@ -56,11 +55,14 @@ func (s *plannerImpl) Plan(ctx context.Context) (*files.System[*files.DiffWithCh
 	}
 	s.log.Debug(ctx, "Loaded config", zap.Any("config", rc))
 	printConfigIfDebug(ctx, s.log, rc)
+	if err := s.hook.PreSetup(ctx, rc); err != nil {
+		return nil, fmt.Errorf("failed to run pre-setup hook: %w", err)
+	}
 	if err := s.mergeConfigs(ctx, rc); err != nil {
 		return nil, fmt.Errorf("failed to merge configs: %w", err)
 	}
-	wd, err := os.Getwd()
 	rc.Syncs = sortSyncs(rc.Syncs, s.registry)
+	wd, err := os.Getwd()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get working directory: %w", err)
 	}

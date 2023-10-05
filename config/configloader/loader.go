@@ -8,9 +8,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/getsyncer/syncer-core/syncer/childrenregistry"
-
 	"github.com/getsyncer/syncer-core/config"
+	"github.com/getsyncer/syncer-core/syncer/childrenregistry"
 	"gopkg.in/yaml.v3"
 )
 
