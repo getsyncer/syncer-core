@@ -26,7 +26,7 @@ type CreateFilesystem interface {
 	Changes(ctx context.Context) (files.System[*files.StateWithChangeReason], error)
 }
 
-func (c Config) Changes(ctx context.Context) (files.System[*files.StateWithChangeReason], error) {
+func (c Config) Changes(_ context.Context) (files.System[*files.StateWithChangeReason], error) {
 	var ret files.System[*files.StateWithChangeReason]
 	if c.Filename == "" {
 		return ret, fmt.Errorf("filename is required")
