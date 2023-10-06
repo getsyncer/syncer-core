@@ -160,6 +160,7 @@ func loopAndExecuteRun(changes *[]*files.System[*files.StateWithChangeReason]) f
 	return func(ctx context.Context, syncer drift.Detector, runData *drift.RunData) error {
 		var runChanges *files.System[*files.StateWithChangeReason]
 		var err error
+		ctx = WithCurrentChanges(ctx, *changes)
 		if runChanges, err = syncer.DetectDrift(ctx, runData); err != nil {
 			return fmt.Errorf("error running %v: %w", syncer.Name(), err)
 		}
