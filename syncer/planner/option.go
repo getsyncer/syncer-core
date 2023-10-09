@@ -26,11 +26,11 @@ func FxOption(o Option) fx.Option {
 		fx.ResultTags(`group:"planoption"`),
 	))
 	// Note: I tried both the below and neither worked.  I'm not sure why.
-	//return fx.Supply(
+	// return fx.Supply(
 	//	fx.Annotated{
 	//		Group:  "planoption",
 	//		Target: o,
 	//	},
-	//)
-	//return fx.Supply(fx.Annotate(o, fx.ResultTags(`group:"planoption"`)))
+	// )
+	// return fx.Supply(fx.Annotate(o, fx.ResultTags(`group:"planoption"`)))
 }
