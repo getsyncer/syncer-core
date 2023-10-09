@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/getsyncer/syncer-core/config/configloader"
+
 	"github.com/getsyncer/syncer-core/git"
 
 	"github.com/getsyncer/syncer-core/files"
@@ -28,13 +30,27 @@ func LoadAllState(ctx context.Context, paths []files.Path, loader StateLoader) (
 	return &ret, nil
 }
 
+func containsString(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+	return false
+}
+
 func SyncedFiles(ctx context.Context, g git.Git, loader StateLoader, loc string, syncFlag string) (*files.System[*files.State], error) {
 	trackedFiles, err := g.ListTrackedFiles(ctx, loc)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list git tracked files: %w", err)
 	}
 	var ret files.System[*files.State]
+	ignoredFiles := configloader.DefaultLocations()
 	for _, f := range trackedFiles {
+		f := files.Path(f).Clean().String()
+		if containsString(ignoredFiles, f) {
+			continue
+		}
 		s, err := loader.LoadState(ctx, files.Path(f))
 		if err != nil {
 			return nil, fmt.Errorf("failed to load state for %s: %w", f, err)

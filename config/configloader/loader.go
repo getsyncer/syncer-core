@@ -30,6 +30,13 @@ type ConfigLoader interface {
 
 var _ ConfigLoader = &DefaultConfigLoader{}
 
+func DefaultLocations() []string {
+	return []string{
+		".syncer/config.yaml",
+		".syncer.yaml",
+	}
+}
+
 func DefaultFindConfigFile(wd string) (string, error) {
 	if wd == "" {
 		var err error
@@ -38,10 +45,7 @@ func DefaultFindConfigFile(wd string) (string, error) {
 			return "", fmt.Errorf("failed to get working directory: %w", err)
 		}
 	}
-	possibleLocations := []string{
-		".syncer/config.yaml",
-		".syncer.yaml",
-	}
+	possibleLocations := DefaultLocations()
 	for _, loc := range possibleLocations {
 		fileLoc := filepath.Join(wd, loc)
 		if _, err := os.Stat(fileLoc); err == nil {

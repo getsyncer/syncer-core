@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 
 	"github.com/cresta/zapctx"
 	"github.com/getsyncer/syncer-core/config"
@@ -91,6 +92,9 @@ func (s *plannerImpl) Plan(ctx context.Context) (*files.System[*files.DiffWithCh
 	if err != nil {
 		return nil, fmt.Errorf("failed to merge removals: %w", err)
 	}
+	if err := s.detectFilesWithoutMagicString(finalExpectedState, drift.MagicTrackedString); err != nil {
+		return nil, fmt.Errorf("detected files without magic string: %w", err)
+	}
 	allPaths := finalExpectedState.Paths()
 	s.log.Debug(ctx, "Loading existing state", zap.Any("paths", allPaths))
 	existingState, err := stateloader.LoadAllState(ctx, allPaths, s.stateLoader)
@@ -151,6 +155,20 @@ func (s *plannerImpl) loopAndExecute(ctx context.Context, rc *config.Root, wd st
 		}
 		if err := toRun(ctx, logic, &sr); err != nil {
 			return fmt.Errorf("error running %v: %w", logic.Name(), err)
+		}
+	}
+	return nil
+}
+
+func (s *plannerImpl) detectFilesWithoutMagicString(state *files.System[*files.StateWithChangeReason], mustContain string) error {
+	for _, p := range state.Paths() {
+		change := state.Get(p)
+		if change.State.FileExistence == files.FileExistenceAbsent {
+			continue
+		}
+		contentsAsString := string(change.State.Contents)
+		if !strings.Contains(contentsAsString, mustContain) {
+			return fmt.Errorf("file %s does not contain %s", p, mustContain)
 		}
 	}
 	return nil

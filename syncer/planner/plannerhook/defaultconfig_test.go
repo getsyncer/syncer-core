@@ -3,6 +3,8 @@ package plannerhook_test
 import (
 	"testing"
 
+	"github.com/getsyncer/syncer-core/drift"
+
 	"github.com/getsyncer/syncer-core/syncer/planner/plannerhook"
 	"go.uber.org/fx"
 
@@ -23,7 +25,7 @@ syncs:
 	type exampleConfig struct {
 		Content string `yaml:"content"`
 	}
-	testModule := fx.Module("test", plannerhook.DefaultConfigModule("tests", exampleConfig{Content: "Static sync content"}))
+	testModule := fx.Module("test", plannerhook.DefaultConfigModule("tests", exampleConfig{Content: "Static sync content" + drift.MagicTrackedString}))
 	t.Run("update-existing-file", drifttest.WithRunAndModule(config, drifttest.ReasonableSampleFilesystem(), func(t *testing.T, items *drifttest.Items) {
 		items.TestRun.MustExitCode(t, 0)
 		drifttest.FileContains(t, "testfile_1", "Static sync content")
