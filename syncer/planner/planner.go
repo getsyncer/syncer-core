@@ -22,8 +22,8 @@ type Planner interface {
 	Plan(ctx context.Context) (*files.System[*files.DiffWithChangeReason], error)
 }
 
-func NewPlanner(registry drift.Registry, configLoader configloader.ConfigLoader, log *zapctx.Logger, stateLoader stateloader.StateLoader, g git.Git, hook Hook) Planner {
-	return &plannerImpl{
+func NewPlanner(registry drift.Registry, configLoader configloader.ConfigLoader, log *zapctx.Logger, stateLoader stateloader.StateLoader, g git.Git, hook Hook, options []Option) Planner {
+	ret := &plannerImpl{
 		registry:     registry,
 		configLoader: configLoader,
 		log:          log,
@@ -31,15 +31,20 @@ func NewPlanner(registry drift.Registry, configLoader configloader.ConfigLoader,
 		git:          g,
 		hook:         hook,
 	}
+	for _, opt := range options {
+		opt.apply(ret)
+	}
+	return ret
 }
 
 type plannerImpl struct {
-	registry     drift.Registry
-	configLoader configloader.ConfigLoader
-	log          *zapctx.Logger
-	stateLoader  stateloader.StateLoader
-	git          git.Git
-	hook         Hook
+	registry                  drift.Registry
+	configLoader              configloader.ConfigLoader
+	log                       *zapctx.Logger
+	stateLoader               stateloader.StateLoader
+	git                       git.Git
+	hook                      Hook
+	filesAllowedNoMagicString []string
 }
 
 var _ Planner = &plannerImpl{}
@@ -160,10 +165,22 @@ func (s *plannerImpl) loopAndExecute(ctx context.Context, rc *config.Root, wd st
 	return nil
 }
 
+func containsString(haystack []string, needle string) bool {
+	for _, h := range haystack {
+		if h == needle {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *plannerImpl) detectFilesWithoutMagicString(state *files.System[*files.StateWithChangeReason], mustContain string) error {
 	for _, p := range state.Paths() {
 		change := state.Get(p)
 		if change.State.FileExistence == files.FileExistenceAbsent {
+			continue
+		}
+		if containsString(s.filesAllowedNoMagicString, p.String()) {
 			continue
 		}
 		contentsAsString := string(change.State.Contents)
