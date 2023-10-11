@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/getsyncer/public-sync-modules v1.22.4
-	github.com/getsyncer/syncer-core v1.8.0
+	github.com/getsyncer/syncer-core v1.9.2
 )
 
 require (
