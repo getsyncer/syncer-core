@@ -3,7 +3,7 @@ module syncer
 go 1.20
 
 require (
-	github.com/getsyncer/public-sync-modules v1.22.2
+	github.com/getsyncer/public-sync-modules v1.22.4
 	github.com/getsyncer/syncer-core v1.8.0
 )
 
