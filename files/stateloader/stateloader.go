@@ -3,7 +3,10 @@ package stateloader
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"strings"
+
+	"github.com/getsyncer/syncer-core/drift"
 
 	"github.com/getsyncer/syncer-core/config/configloader"
 
@@ -46,7 +49,7 @@ func SyncedFiles(ctx context.Context, g git.Git, loader StateLoader, loc string,
 	}
 	var ret files.System[*files.State]
 	ignoredFiles := configloader.DefaultLocations()
-	ignoredFiles = append(ignoredFiles, ".syncer/sync.go")
+	ignoredFiles = append(ignoredFiles, filepath.Join(drift.DefaultSyncerDirectory, drift.DefaultSyncerMainFile))
 	for _, f := range trackedFiles {
 		f := files.Path(f).Clean().String()
 		if containsString(ignoredFiles, f) {
