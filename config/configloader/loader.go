@@ -8,6 +8,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/getsyncer/syncer-core/drift"
+
 	"github.com/getsyncer/syncer-core/config"
 	"github.com/getsyncer/syncer-core/syncer/childrenregistry"
 	"gopkg.in/yaml.v3"
@@ -32,8 +34,7 @@ var _ ConfigLoader = &DefaultConfigLoader{}
 
 func DefaultLocations() []string {
 	return []string{
-		".syncer/config.yaml",
-		".syncer.yaml",
+		filepath.Join(drift.DefaultSyncerDirectory, drift.DefaultSyncerConfigFileName),
 	}
 }
 

@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/getsyncer/syncer-core/drift"
+
 	"github.com/getsyncer/syncer-core/log/testlog"
 
 	"go.uber.org/fx/fxtest"
@@ -120,10 +122,11 @@ func (t *TestRun) SetupFiles() {
 		require.NoError(t.T, err)
 	}
 	if t.Config != "" {
-		require.NoError(t.T, os.MkdirAll(".syncer", 0755))
-		require.NoError(t.T, os.WriteFile(".syncer/config.yaml", []byte(t.Config), 0600))
+		require.NoError(t.T, os.MkdirAll(drift.DefaultSyncerDirectory, 0755))
+		configPath := filepath.Join(drift.DefaultSyncerDirectory, drift.DefaultSyncerConfigFileName)
+		require.NoError(t.T, os.WriteFile(configPath, []byte(t.Config), 0600))
 		// now add to git
-		_, err := wt.Add(".syncer/config.yaml")
+		_, err := wt.Add(configPath)
 		require.NoError(t.T, err)
 	}
 	// Now commit
