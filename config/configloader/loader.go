@@ -53,7 +53,7 @@ func DefaultFindConfigFile(wd string) (string, error) {
 			return loc, nil
 		}
 	}
-	return "", fmt.Errorf("no config file found")
+	return "", fmt.Errorf("no config file found inside %s", wd)
 }
 
 func ConfigFromFile(ctx context.Context, loader ConfigLoader) (*config.Root, error) {
