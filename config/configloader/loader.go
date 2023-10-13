@@ -94,14 +94,15 @@ func (c *DefaultConfigLoader) FlattenChildren(_ context.Context, root *config.Ro
 		originalChildren := root.Children
 		root.Children = nil
 		for _, child := range originalChildren {
-			content, exists := c.childrenRegistry.Get(config.Name(child.Source))
+			childName := child.SourceWithoutVersion()
+			content, exists := c.childrenRegistry.Get(config.Name(childName))
 			if !exists {
-				return fmt.Errorf("unknown child: %s", child.Source)
+				return fmt.Errorf("unknown child: %s", childName)
 			}
-			if _, exists := processedChildrenSources[child.Source]; exists {
+			if _, exists := processedChildrenSources[childName]; exists {
 				continue
 			}
-			processedChildrenSources[child.Source] = struct{}{}
+			processedChildrenSources[childName] = struct{}{}
 			// Now unmarshal the child
 			var childRoot config.Root
 			if err := yaml.Unmarshal(content.Content, &childRoot); err != nil {
