@@ -34,8 +34,6 @@ var _ ConfigLoader = &DefaultConfigLoader{}
 
 func DefaultLocations() []string {
 	return []string{
-		filepath.Join(drift.DefaultSyncerDirectory, drift.DefaultSyncerConfigFileName),
-		filepath.Join(drift.DefaultSyncerDirectory, "config.yaml"),
 		drift.DefaultSyncerConfigFileName,
 	}
 }

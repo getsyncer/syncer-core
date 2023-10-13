@@ -49,7 +49,7 @@ func SyncedFiles(ctx context.Context, g git.Git, loader StateLoader, loc string,
 	}
 	var ret files.System[*files.State]
 	ignoredFiles := configloader.DefaultLocations()
-	ignoredFiles = append(ignoredFiles, filepath.Join(drift.DefaultSyncerDirectory, drift.DefaultSyncerMainFile))
+	ignoredFiles = append(ignoredFiles, filepath.Join(drift.DefaultSyncerGeneratedGoDirectory, drift.DefaultSyncerGeneratedGoFilename))
 	for _, f := range trackedFiles {
 		f := files.Path(f).Clean().String()
 		if containsString(ignoredFiles, f) {
