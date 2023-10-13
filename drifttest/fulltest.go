@@ -122,8 +122,7 @@ func (t *TestRun) SetupFiles() {
 		require.NoError(t.T, err)
 	}
 	if t.Config != "" {
-		require.NoError(t.T, os.MkdirAll(drift.DefaultSyncerGeneratedGoDirectory, 0755))
-		configPath := filepath.Join(drift.DefaultSyncerGeneratedGoDirectory, drift.DefaultSyncerConfigFileName)
+		configPath := drift.DefaultSyncerConfigFileName
 		require.NoError(t.T, os.WriteFile(configPath, []byte(t.Config), 0600))
 		// now add to git
 		_, err := wt.Add(configPath)
