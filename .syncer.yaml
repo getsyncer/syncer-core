@@ -1,0 +1,6 @@
+version: 1
+config:
+  name: "syncer-core"
+
+children:
+  - source: github.com/getsyncer/public-sync-modules/opensourcegolib@v1.28.0
