@@ -2,7 +2,7 @@ version: 1
 config:
   name: "syncer-core"
   extends:
-    - "github>getsyncer/action-syncer:custom-renovate.json"
+    - "github>getsyncer/syncer-core:custom-renovate.json"
 
 children:
   - source: github.com/getsyncer/public-sync-modules/opensourcegolib
