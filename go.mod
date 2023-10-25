@@ -8,7 +8,7 @@ require (
 	github.com/cresta/zapctx v0.0.3
 	github.com/getsyncer/public-sync-modules v1.31.3
 	github.com/go-git/go-billy/v5 v5.5.0
-	github.com/go-git/go-git/v5 v5.9.0
+	github.com/go-git/go-git/v5 v5.10.0
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/fx v1.20.1
 	go.uber.org/zap v1.26.0
